@@ -58,7 +58,7 @@ def search(point, img, groups):
 
     :param point: the start point (x, y) for bfs searching.
     :param img: the source image after edge detection.
-    :param groups: point group searched.
+    :param groups: point group searched.::
     """
     for group in groups:
         if point in group:
