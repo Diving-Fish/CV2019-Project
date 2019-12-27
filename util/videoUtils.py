@@ -19,25 +19,28 @@ class VideoUtils:
 
         ok = True
         cnt = 0  # read frame count
-        i = 0   # step count
+        i = 0  # step count
+        videoname = srcfile[srcfile.rfind("\\"):]
         while ok:
+            ok, frame = cap.read()
+            if not ok:
+                break
             if i < step:
                 i = i + 1
                 continue
             else:
-                ok, frame = cap.read()
                 i = 0
                 cnt = cnt + 1
-            if not ok:
-                break
-            else:
-                logging.info("Saving image %s\\%d.jpg" % (savepath, cnt))
-                cv.imwrite("%s\\%d.jpg" % (savepath, cnt), frame)
+            logging.info("Saving image %s\\%s%d.jpg" % (savepath, videoname, cnt))
+            cv.imwrite("%s\\%s%d.jpg" % (savepath, videoname, cnt), frame)
 
 
 def main():
-    VideoUtils.capture_frames(30, "D:\\courses\\computer-vision\\project\\small-vedios\\VID_20191227_133259.mp4",
-                              "D:\\courses\\computer-vision\\project\\object-detection\\resource")
+    path = "D:\\courses\\computer-vision\\project\\object-detection\\resource\\small-videos"
+    files = os.listdir(path)
+    for file in files:
+        VideoUtils.capture_frames(10, "".join([path, "\\", file]),
+                                  "D:\\courses\\computer-vision\\project\\object-detection\\resource\\origin-images")
 
 
 if __name__ == '__main__':
