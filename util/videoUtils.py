@@ -1,6 +1,7 @@
 import cv2 as cv
 import os
 import logging
+from util.imageUtils import ImageUtils
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -32,6 +33,7 @@ class VideoUtils:
                 i = 0
                 cnt = cnt + 1
             logging.info("Saving image %s\\%s%d.jpg" % (savepath, videoname, cnt))
+            frame = ImageUtils.standard_shape(frame)
             cv.imwrite("%s\\%s%d.jpg" % (savepath, videoname, cnt), frame)
 
 

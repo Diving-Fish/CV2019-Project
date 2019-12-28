@@ -2,3 +2,8 @@
 __pycache__
 **/__pycache__
 resource
+train
+model/data
+model/model.pth
+testdata
+testres
