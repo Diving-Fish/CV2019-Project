@@ -6,7 +6,8 @@ def swap(t):
     return t[1], t[0]
 
 
-img = cv.imread("cap.jpg")
+img = cv.imread("1.jpg")
+img = cv.resize(img, (800, 600))
 points = edge_detector.detect_bottle_cap(img)
 for point in points:
     cv.rectangle(img, swap(point[0]), swap(point[1]), (0, 255, 0), 2)
