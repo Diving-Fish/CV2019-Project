@@ -30,14 +30,16 @@ def cvt_groups(group):
     return [(minx, miny), (maxx, maxy)]
 
 
-def search(point, img, groups):
+def search(point, img, groups, max_spacing):
     """
-        search(point, img, group) -> none
+    search(point, img, group) -> none
 
-        :param point: the start point (x, y) for bfs searching.
-        :param img: the source image after edge detection.
-        :param groups: point group searched.::
-        """
+    :param point: the start point (x, y) for bfs searching.
+    :param img: the source image after edge detection.
+    :param groups: point group searched.::
+    :param max_spacing: the max_spacing of two edges detected.
+                         Two edges which spacing < max_spacing will be recognized as one bottle cap.
+    """
     for group in groups:
         if point in group:
             return
@@ -47,8 +49,8 @@ def search(point, img, groups):
     searched = []
     while queue:
         p = queue.pop(0)
-        for x in range(p[0] - 5, p[0] + 6, 1):
-            for y in range(p[1] - 5, p[1] + 6, 1):
+        for x in range(p[0] - max_spacing, p[0] + max_spacing + 1, 1):
+            for y in range(p[1] - max_spacing, p[1] + max_spacing + 1, 1):
                 if x < 0 or y < 0 or x >= img.shape[0] or y >= img.shape[1]:
                     continue
                 if img[x][y] == 255 and (x, y) not in searched and (x, y) not in queue:
@@ -64,20 +66,23 @@ class ImageUtils:
         return point[1], point[0]
 
     @staticmethod
-    def detect_bottle_cap(img):
+    def detect_bottle_cap(img, min_size=400, max_spacing=8):
         """
         detect_bottle_cap(img) -> points
 
         :param img: 8-bit input image.
+        :param min_size: the min_size of a rectangle. the default is 400 pixels. (20 x 20)
+        :param max_spacing: the max_spacing of two edges detected.
+                         Two edges which spacing < max_spacing will be recognized as one bottle cap.
         :return points: 2-point array of the rectangle containing the bottle cap.
         """
         image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-        edges = cv.Canny(image, 50, 150)
+        edges = cv.Canny(image, 20, 150)
         groups = []
         for x in range(edges.shape[0]):
             for y in range(edges.shape[1]):
                 if edges[x][y] == 255:
-                    search((x, y), edges, groups)
+                    search((x, y), edges, groups, max_spacing)
         points = []
         for group in groups:
             point = cvt_groups(group)
@@ -87,7 +92,7 @@ class ImageUtils:
                         and p[1][0] >= point[1][0] and p[1][1] >= point[1][1]:
                     flag = False
                     break
-            if flag:
+            if flag and (point[1][0] - point[0][0]) * (point[1][1] - point[0][1]) >= min_size:
                 points.append(point)
         return points
 
@@ -120,10 +125,10 @@ class ImageUtils:
 
         if height > width:
             #  resize (width, height)
-            return cv.resize(img, (int(1080 / height * width), 1080), interpolation=cv.INTER_CUBIC)
+            return cv.resize(img, (600, 800), interpolation=cv.INTER_CUBIC)
         else:
             #  resize (width, height)
-            return cv.resize(img, (1080, int(1080 / width * height)), interpolation=cv.INTER_CUBIC)
+            return cv.resize(img, (800, 600), interpolation=cv.INTER_CUBIC)
 
 
 def main():
@@ -132,11 +137,10 @@ def main():
 
     for file in files:
         img = ImageUtils.standard_shape(cv.imread("".join([path, "\\", file])))
-        cv.imshow("img", img)
         points = ImageUtils.detect_bottle_cap(img)
+        print(points)
         ImageUtils.crop_arr(img, points,
                             savepath="D:\\courses\\computer-vision\\project\\object-detection\\resource\\classes")
-        cv.waitKey(0)
 
 
 if __name__ == '__main__':

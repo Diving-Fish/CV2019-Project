@@ -65,7 +65,7 @@ def load_model(path=".\\model\\model.pth"):
 
 def main():
     folder = "C:\\Users\\ALIENWARE\\Desktop\\test"
-    model = t.load("model2.pth")
+    model = t.load("resnet152-bottlecap_v0.91.pth")
     for entry in detect_all(folder, model):
         if entry["predict"] != 1:
             print(entry)

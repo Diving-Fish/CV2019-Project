@@ -10,6 +10,7 @@ import yaml
 import torchvision.models as models
 import time
 import copy
+from PIL import Image
 
 
 def train_model(model, criterion, optimizer, scheduler, dataloaders, dataset_sizes, device, num_epochs=25):
@@ -84,13 +85,13 @@ def main():
 
     data_transforms = {
         'train': transforms.Compose([
-            transforms.RandomResizedCrop(224),
+            transforms.RandomResizedCrop(224, interpolation=Image.BICUBIC),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ]),
         'val': transforms.Compose([
-            transforms.Resize(256),
+            transforms.Resize(256, interpolation=Image.BICUBIC),
             transforms.CenterCrop(224),
             transforms.ToTensor(),
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -100,7 +101,7 @@ def main():
                                               data_transforms[x])
                       for x in ['train', 'val']}
     dataloaders = {x: t.utils.data.DataLoader(image_datasets[x],
-                                              batch_size=40,
+                                              batch_size=8,
                                               shuffle=True,
                                               num_workers=8)
                    for x in ['train', 'val']}
@@ -125,7 +126,7 @@ def main():
     model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
                            dataloaders, dataset_sizes, device,
                            num_epochs=int(config["num_epochs"]))
-    t.save(model_ft, "model.pth")
+    t.save(model_ft, "resnet152-bottlecap_v0.91.pth")
 
 
 if __name__ == '__main__':

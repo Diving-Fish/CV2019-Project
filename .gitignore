@@ -4,6 +4,8 @@ __pycache__
 resource
 train
 model/data
-model/model.pth
+model/*.pth
 testdata
 testres
+*.doc
+*.docx

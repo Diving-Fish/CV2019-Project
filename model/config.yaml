@@ -1,8 +1,8 @@
 data_root: "data\\bottlecap"
-batch_size: 128
+batch_size: 8
 use_gpu: True
 num_workers: 4
-num_epochs: 32
+num_epochs: 25
 lr: 0.1
 lr_decay: 0.95
 weight_decay: 1e-4
