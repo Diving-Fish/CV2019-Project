@@ -5,7 +5,5 @@ resource
 train
 model/data
 model/*.pth
-testdata
-testres
 *.doc
 *.docx

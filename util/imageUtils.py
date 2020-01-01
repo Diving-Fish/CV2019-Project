@@ -77,7 +77,9 @@ class ImageUtils:
         :return points: 2-point array of the rectangle containing the bottle cap.
         """
         image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-        edges = cv.Canny(image, 20, 150)
+        edges = cv.Canny(image, 15, 150)
+        # cv.imshow("test", edges)
+        # cv.waitKey(0)
         groups = []
         for x in range(edges.shape[0]):
             for y in range(edges.shape[1]):
