@@ -22,7 +22,7 @@ def detect_one_arr(img: np.ndarray, model: nn.Module) -> int:
     img = Image.fromarray(img)
     inputs = trans(img).unsqueeze(0)
     model.eval()
-    inputs = V(inputs.cuda())
+    inputs = V(inputs)
     predict = model(inputs)
     probability = t.nn.functional.softmax(predict, dim=1)
     return t.max(probability, 1)[1].cpu().numpy()[0]
