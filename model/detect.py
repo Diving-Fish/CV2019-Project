@@ -2,6 +2,7 @@ from typing import List, Dict
 
 import numpy as np
 from PIL import Image
+from torchvision import models
 from torchvision.transforms import transforms
 from torch.autograd import Variable as V
 import os
@@ -44,7 +45,7 @@ def detect_one(srcfile: str, model: nn.Module) -> int:
     img = Image.open(srcfile)
     inputs = trans(img).unsqueeze(0)
     model.eval()
-    inputs = V(inputs.cuda())
+    inputs = V(inputs)
     predict = model(inputs)
     probability = t.nn.functional.softmax(predict, dim=1)
     return t.max(probability, 1)[1].cpu().numpy()[0]
@@ -58,14 +59,18 @@ def detect_all(folder: str, model: nn.Module) -> List[Dict]:
     return [{"predict": detect_one(os.path.join(folder, file), model), "name": file} for file in files]
 
 
-def load_model(path=".\\model\\model.pth"):
-    model = t.load(path)
+def load_model(path=".\\model\\resnet152-bottlecap_v0.92.pth"):
+    model = models.resnet152(pretrained=True)
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Linear(num_ftrs, 3)
+    device = t.device("cuda:0" if t.cuda.is_available() else "cpu")
+    model.load_state_dict(t.load(path, map_location=device))
     return model
 
 
 def main():
     folder = "C:\\Users\\ALIENWARE\\Desktop\\test"
-    model = t.load("resnet152-bottlecap_v0.91.pth")
+    model = load_model(".\\resnet152-bottlecap_v0.92.pth")
     for entry in detect_all(folder, model):
         if entry["predict"] != 1:
             print(entry)

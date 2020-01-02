@@ -101,7 +101,7 @@ def main():
                                               data_transforms[x])
                       for x in ['train', 'val']}
     dataloaders = {x: t.utils.data.DataLoader(image_datasets[x],
-                                              batch_size=8,
+                                              batch_size=16,
                                               shuffle=True,
                                               num_workers=8)
                    for x in ['train', 'val']}
@@ -126,7 +126,7 @@ def main():
     model_ft = train_model(model_ft, criterion, optimizer_ft, exp_lr_scheduler,
                            dataloaders, dataset_sizes, device,
                            num_epochs=int(config["num_epochs"]))
-    t.save(model_ft, "resnet152-bottlecap_v0.91.pth")
+    t.save(model_ft.state_dict(), "resnet152-bottlecap_v0.92.pth")
 
 
 if __name__ == '__main__':
