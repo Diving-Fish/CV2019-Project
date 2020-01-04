@@ -5,17 +5,17 @@ import cv2 as cv
 
 
 def main():
-    imgs = os.listdir("testdata")
+    imgs = os.listdir("C:\\Users\\ALIENWARE\\Desktop\\test")
     classes = ["back", "front", "side"]
     model = load_model()
     for imgname in imgs:
-        img = cv.imread(os.path.join("testdata", imgname))
+        img = cv.imread(os.path.join("C:\\Users\\ALIENWARE\\Desktop\\test", imgname))
         img = ImageUtils.standard_shape(img)
         points = ImageUtils.detect_bottle_cap(img)
+        print(points)
         caps = ImageUtils.crop_arr(img, points, save=False)
         predicts = detect_arr_list(caps, model)
         print(predicts)
-        print(points)
         print(len(caps), len(points))
         for i in range(len(caps)):
             point = points[i]
