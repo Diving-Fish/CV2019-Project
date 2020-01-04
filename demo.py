@@ -5,11 +5,11 @@ import cv2 as cv
 
 
 def main():
-    imgs = os.listdir("C:\\Users\\ALIENWARE\\Desktop\\test")
+    imgs = os.listdir("testdata")
     classes = ["back", "front", "side"]
     model = load_model()
     for imgname in imgs:
-        img = cv.imread(os.path.join("C:\\Users\\ALIENWARE\\Desktop\\test", imgname))
+        img = cv.imread(os.path.join("testdata", imgname))
         img = ImageUtils.standard_shape(img)
         points = ImageUtils.detect_bottle_cap(img)
         print(points)

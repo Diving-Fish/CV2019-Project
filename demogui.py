@@ -6,11 +6,12 @@ from tkinter import *
 from tkinter import filedialog
 from PIL import Image, ImageTk
 from tkinter import filedialog
-
+import numpy as np
 
 img_in_display = None
 img_out_display = None
 path = None
+
 
 def choose_file():
     global img_in_display, path
@@ -19,6 +20,7 @@ def choose_file():
     tk_img_in = ImageTk.PhotoImage(img_in)
     img_in_display.config(image=tk_img_in)
     img_in_display.image=tk_img_in
+
 
 def run():
     global img_out_display, path
@@ -39,9 +41,11 @@ def run():
     for i in range(len(caps)):
         point = points[i]
         cv.rectangle(img, ImageUtils.swap_xy(point[0]), ImageUtils.swap_xy(point[1]), (0, 255, 0), 2)
+        p1 = ImageUtils.swap_xy(point[0])
+        p2 = ImageUtils.swap_xy(point[1])
         cv.putText(img,
                     classes[predicts[i]["predict"]],
-                    ImageUtils.swap_xy(point[0]),
+                   (int((p1[0] + p2[0]) / 4), int((p1[1] + p2[1]) / 2)),
                     cv.FONT_HERSHEY_SIMPLEX,
                     1.0,
                     (255, 0, 0),
@@ -50,11 +54,13 @@ def run():
     tk_img_out = ImageTk.PhotoImage(img)
     img_out_display.config(image=tk_img_out)
     img_out_display.image=tk_img_out
-        
+
+
 def main():
     global img_in_display, img_out_display
 
     root = Tk()
+    root.title("超级瓶盖分类器")
     root.geometry('800x500')
     root.resizable(0, 0)
     
@@ -68,6 +74,7 @@ def main():
     img_out_display.place(x=400, y=100)
 
     root.mainloop()
+
 
 if __name__ == '__main__':
     main()
