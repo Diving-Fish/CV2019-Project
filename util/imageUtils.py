@@ -30,34 +30,17 @@ def cvt_groups(group):
     return [(minx, miny), (maxx, maxy)]
 
 
-def search(point, img, groups, max_spacing):
-    """
-    search(point, img, group) -> none
-
-    :param point: the start point (x, y) for bfs searching.
-    :param img: the source image after edge detection.
-    :param groups: point group searched.::
-    :param max_spacing: the max_spacing of two edges detected.
-                         Two edges which spacing < max_spacing will be recognized as one bottle cap.
-    """
-    for group in groups:
-        if point in group:
-            return
-    if img[point[0]][point[1]] != 255:
+def set_equal(equal_labels, a, b):
+    if a == b:
         return
-    queue = [point]
-    searched = []
-    while queue:
-        p = queue.pop(0)
-        for x in range(p[0] - max_spacing, p[0] + max_spacing + 1, 1):
-            for y in range(p[1] - max_spacing, p[1] + max_spacing + 1, 1):
-                if x < 0 or y < 0 or x >= img.shape[0] or y >= img.shape[1]:
-                    continue
-                if img[x][y] == 255 and (x, y) not in searched and (x, y) not in queue:
-                    queue.append((x, y))
-        if p not in searched:
-            searched.append(p)
-    groups.append(searched)
+    for label in equal_labels:
+        if a in label or b in label:
+            if a not in label:
+                label.append(a)
+            if b not in label:
+                label.append(b)
+            return
+    equal_labels.append([a, b])
 
 
 class ImageUtils:
@@ -78,16 +61,62 @@ class ImageUtils:
         """
         image = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         edges = cv.Canny(image, 15, 150)
-        # cv.imshow("test", edges)
-        # cv.waitKey(0)
-        groups = []
+        equal_labels = []
+        labels = np.zeros(edges.shape, int)
+        label = 1
+        _label = 1
+        # 2-Pass
+        # First:
         for x in range(edges.shape[0]):
             for y in range(edges.shape[1]):
                 if edges[x][y] == 255:
-                    search((x, y), edges, groups, max_spacing)
+                    flag = False
+                    for _x in range(x - max_spacing, x + max_spacing + 1, 1):
+                        for _y in range(y - max_spacing, y + max_spacing + 1, 1):
+                            if _x < 0 or _y < 0 or _x >= edges.shape[0] or _y >= edges.shape[1]:
+                                continue
+                            cur_label = labels[_x][_y]
+                            if cur_label != 0:
+                                labels[x][y] = cur_label
+                                if cur_label != label:
+                                    for __x in range(x - max_spacing, x + max_spacing + 1, 1):
+                                        for __y in range(y - max_spacing, y + max_spacing + 1, 1):
+                                            if not (__x < 0 or __y < 0 or __x >= edges.shape[0] or __y >= edges.shape[
+                                                1]) \
+                                                    and labels[__x][__y] != 0:
+                                                set_equal(equal_labels, labels[__x][__y], cur_label)
+                                    label = cur_label
+                                flag = True
+                                break
+                    if not flag:
+                        labels[x][y] = _label
+                        label = _label
+                        _label += 1
+        # Second:
+        d = {}
+        for x in range(edges.shape[0]):
+            for y in range(edges.shape[1]):
+                if labels[x][y] != 0:
+                    val = 0
+                    flag = False
+                    for label in equal_labels:
+                        if labels[x][y] in label:
+                            flag = True
+                            minv = label[0]
+                            for v in label:
+                                if v < minv:
+                                    minv = v
+                            labels[x][y] = minv
+                            val = minv
+                    if not flag:
+                        val = labels[x][y]
+                    try:
+                        d[val].append((x, y))
+                    except KeyError:
+                        d[val] = [(x, y)]
         points = []
-        for group in groups:
-            point = cvt_groups(group)
+        for key in d:
+            point = cvt_groups(d[key])
             flag = True
             for p in points:  # detect containing
                 if p[0][0] <= point[0][0] and p[0][1] <= point[0][1] \
