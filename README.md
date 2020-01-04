@@ -91,5 +91,8 @@ For UI developing, you only need to
     * get points of bottle caps
     * crop the bottle caps
     * classify the bottle caps
+ 
+ 04-01-2020
+1. Add Two-pass algorithms to boost circle searching speed
 
 
