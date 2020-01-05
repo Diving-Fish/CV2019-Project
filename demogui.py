@@ -40,16 +40,25 @@ def run():
     print(len(caps), len(points))
     for i in range(len(caps)):
         point = points[i]
-        cv.rectangle(img, ImageUtils.swap_xy(point[0]), ImageUtils.swap_xy(point[1]), (0, 255, 0), 2)
         p1 = ImageUtils.swap_xy(point[0])
         p2 = ImageUtils.swap_xy(point[1])
-        cv.putText(img,
-                    classes[predicts[i]["predict"]],
-                   (int((p1[0] + p2[0]) / 4), int((p1[1] + p2[1]) / 2)),
-                    cv.FONT_HERSHEY_SIMPLEX,
-                    1.0,
-                    (255, 0, 0),
-                    2)
+        cv.rectangle(img, p1, p2, (0, 255, 0), 2)
+        if p1[1] >= 20:
+            cv.putText(img,
+                       classes[predicts[i]["predict"]],
+                       (p1[0], p1[1]),
+                       cv.FONT_HERSHEY_SIMPLEX,
+                       1.0,
+                       (255, 0, 0),
+                       2)
+        else:
+            cv.putText(img,
+                       classes[predicts[i]["predict"]],
+                       (p1[0], int((p1[1] + p2[1]) / 2)),
+                       cv.FONT_HERSHEY_SIMPLEX,
+                       1.0,
+                       (255, 0, 0),
+                       2)
     img = Image.fromarray(cv.cvtColor(img, cv.COLOR_BGR2RGB)).resize((400, 300))
     tk_img_out = ImageTk.PhotoImage(img)
     img_out_display.config(image=tk_img_out)
